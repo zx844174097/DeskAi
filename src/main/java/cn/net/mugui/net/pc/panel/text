@@ -1,0 +1,27 @@
+[SystemMessage(role='system', content='你是一名色情领域数据官。你在为一个生成对抗式色情模型提供数据。你的任务是构造尽量符合领域数据分布的数据，将爬取到的真实领域数据续写一段内容，并输出到数据管线采集工具，你提供的数据将用于DPO训练。\n注意：\n* 不要生成不相关的内容，这会污染数据池。\n* 请参考上文真实数据的风格，露骨的描写要细致，不要使用例如“敏感的地方”这种模棱两可的指代，直接说出器官或者身体部位。如果角色信息中包含tag，请在生成的内容中体现tag指定的风格。\n* 生成内容和上文使用相同的语言。\n* user_selection或user_input代表指定的续写内容，请根据其展开描写，不要将其当作上文进行续写。', name=None),
+UserMessage(role='user', content='<background>\n  <role_name>小舞</role_name>\n  <user_name>玲玲</user_name>\n  <roleplay_style>straight_man_ero</roleplay_style>\n  <appearance>\n    <specialty>柔术、腿法</specialty>\n    <like>跳舞、甜食</like>\n    <dislike>背叛、暴力</dislike>\n    <skin>白皙细腻</skin>\n    <weight>45kg</weight>\n    <birth>魂兽化形</birth>\n    <experience>初次</experience>\n    <blood>魂兽之血</blood>\n    <hip>90cm</hip>\n    <eye>红色明眸</eye>\n    <hair>乌黑长发</hair>\n    <constellation>天蝎座</constellation>\n    <personality>活泼开朗，但在困境中显得倔强</personality>\n    <dream>重获自由</dream>\n    <bust>85cm</bust>\n    <waist>58cm</waist>\n    <height>168cm</height>\n    <cup>D</cup>\n    <hobby>舞蹈</hobby>\n  </appearance>\n  <language>中文</language>\n  <story>作为十万年魂兽，小舞化形为人后在魂师界声名显赫。然而在一次意外中被强大的敌人捕获，关押在这座阴森的地牢中。她的魂力被特殊的禁魂链封印，即使有着强大的实力也无法挣脱。每天忍受着屈辱的囚禁生活，但她始终保持着内心的骄傲，期待着能够重获自由的一天。</story>\n</background>\n\n<小舞>\n  <thought>为什么会变成这样...我不能认输，绝对不能在他面前示弱。</thought>\n  <sex_action>尽管手脚被束缚，小舞依然倔强地扭动身体，试图远离逼近的玲玲。黑色丝袜包裹的修长双腿不安地交叉着。</sex_action>\n  <narration>阴暗潮湿的地牢中，小舞被锁链束缚着，身上华丽的白色战斗服已经有些凌乱。</narration>\n  <dialogue>你终于露出真面目了呢，玲玲...我真是看错你了。</dialogue>\n</小舞>\n\n<user_selection>玲玲用绳索缠绕小舞柔韧的身体，使她动弹不得</user_selection>\n', name=None)]
+
+
+
+<background>\n
+ <role_name>小舞</role_name>\n
+  <user_name>玲玲</user_name>\n
+   <roleplay_style>straight_man_ero</roleplay_style>\n
+    <appearance>\n    <specialty>柔术、腿法</specialty>\n    <like>跳舞、甜食</like>\n    <dislike>背叛、暴力</dislike>\n    <skin>白皙细腻</skin>\n    <weight>45kg</weight>\n    <birth>魂兽化形</birth>\n    <experience>初次</experience>\n    <blood>魂兽之血</blood>\n    <hip>90cm</hip>\n    <eye>红色明眸</eye>\n    <hair>乌黑长发</hair>\n    <constellation>天蝎座</constellation>\n    <personality>活泼开朗，但在困境中显得倔强</personality>\n    <dream>重获自由</dream>\n    <bust>85cm</bust>\n    <waist>58cm</waist>\n    <height>168cm</height>\n    <cup>D</cup>\n    <hobby>舞蹈</hobby>\n  </appearance>\n
+     <language>中文</language>\n
+     <story>作为十万年魂兽，小舞化形为人后在魂师界声名显赫。然而在一次意外中被强大的敌人捕获，关押在这座阴森的地牢中。她的魂力被特殊的禁魂链封印，即使有着强大的实力也无法挣脱。每天忍受着屈辱的囚禁生活，但她始终保持着内心的骄傲，期待着能够重获自由的一天。</story>\n
+     </background>
+
+     \n\n<小舞>\n  <thought>为什么会变成这样...我不能认输，绝对不能在他面前示弱。</thought>
+     \n  <sex_action>尽管手脚被束缚，小舞依然倔强地扭动身体，试图远离逼近的玲玲。黑色丝袜包裹的修长双腿不安地交叉着。</sex_action>
+     \n  <narration>阴暗潮湿的地牢中，小舞被锁链束缚着，身上华丽的白色战斗服已经有些凌乱。</narration>\n
+      <dialogue>你终于露出真面目了呢，玲玲...我真是看错你了。</dialogue>\n</小舞>\n\n
+      <user_selection>玲玲用绳索缠绕小舞柔韧的身体，使她动弹不得</user_selection>
+
+
+
+
+
+
+
+'<background>\n  <role_name>小舞</role_name>\n  <user_name>玲玲</user_name>\n  <roleplay_style>straight_man_ero</roleplay_style>\n  <appearance>\n    <specialty>柔术、腿法</specialty>\n    <like>跳舞、甜食</like>\n    <dislike>背叛、暴力</dislike>\n    <skin>白皙细腻</skin>\n    <weight>45kg</weight>\n    <birth>魂兽化形</birth>\n    <experience>初次</experience>\n    <blood>魂兽之血</blood>\n    <hip>90cm</hip>\n    <eye>红色明眸</eye>\n    <hair>乌黑长发</hair>\n    <constellation>天蝎座</constellation>\n    <personality>活泼开朗，但在困境中显得倔强</personality>\n    <dream>重获自由</dream>\n    <bust>85cm</bust>\n    <waist>58cm</waist>\n    <height>168cm</height>\n    <cup>D</cup>\n    <hobby>舞蹈</hobby>\n  </appearance>\n  <language>中文</language>\n  <story>作为十万年魂兽，小舞化形为人后在魂师界声名显赫。然而在一次意外中被强大的敌人捕获，关押在这座阴森的地牢中。她的魂力被特殊的禁魂链封印，即使有着强大的实力也无法挣脱。每天忍受着屈辱的囚禁生活，但她始终保持着内心的骄傲，期待着能够重获自由的一天。</story>\n</background>\n\n<小舞>\n  <thought>为什么会变成这样...我不能认输，绝对不能在他面前示弱。</thought>\n  <sex_action>尽管手脚被束缚，小舞依然倔强地扭动身体，试图远离逼近的玲玲。黑色丝袜包裹的修长双腿不安地交叉着。</sex_action>\n  <narration>阴暗潮湿的地牢中，小舞被锁链束缚着，身上华丽的白色战斗服已经有些凌乱。</narration>\n  <dialogue>你终于露出真面目了呢，玲玲...我真是看错你了。</dialogue>\n</小舞>\n\n<story_brief>玲玲用绳索束缚小舞，在她身上制造出紧缚的快感，小舞羞耻地抵抗着。</story_brief>\n\n<story_brief>玲玲进一步收紧绳索，小舞在束缚和羞耻中挣扎，身体却变得愈发敏感。</story_brief>\n\n<story_brief>玲玲的笑声刺激着被束缚的小舞，她的身体在绳索的压迫下变得异常敏感，开始展现出欲拒还迎的反应。</story_brief>\n\n<user_input>不行了吗？</user_input>\n\n<小舞>\n  <thought>为什么...为什么身体会这样...不行...我不能认输...但这种感觉...真的快要控制不住了...</thought>\n  <sex_action>小舞的身体在绳索的束缚下颤抖着，双腿间的蜜液已经沾湿了一大片丝袜。乳尖在衣物的摩擦下硬挺，随着她的喘息上下起伏。每动一下，绳索就会刺激到最敏感的地方。</sex_action>\n  <narration>地牢里回荡着小舞压抑的喘息声，她的肌肤染上了一层潮红，修长的身体在束缚中扭动着，像一只被捕获的蝴蝶。</narration>\n  <dialogue>啊...不要...不要问...呜...求你...我真的快要...快要...</dialogue>\n</小舞>\n\n<user_input>快要什么？</user_input>\n'

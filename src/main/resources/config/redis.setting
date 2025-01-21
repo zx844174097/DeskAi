@@ -1,0 +1,12 @@
+
+#----- 默认（公有）配置
+
+# 超时，默认2000
+timeout = 2000
+# 连接超时，默认timeout
+connectionTimeout = 2000
+# 读取超时，默认timeout
+soTimeout = 2000
+
+# SSL连接，默认false
+ssl = false;
