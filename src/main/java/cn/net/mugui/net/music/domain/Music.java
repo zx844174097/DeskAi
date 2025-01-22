@@ -1,7 +1,6 @@
 package cn.net.mugui.net.music.domain;
 
 import cn.net.mugui.net.pc.dao.Sql;
-import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.mugui.bean.JsonBean;
 import com.mugui.sql.SQLDB;
 import com.mugui.sql.SQLField;
@@ -10,6 +9,8 @@ import com.mugui.sql.loader.Where;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -81,5 +82,10 @@ public class Music extends JsonBean {
             return by(new Music());
         }
         return select;
+    }
+
+    public static List<Music> list() {
+        return Sql.getInstance().selectList(new Music());
+
     }
 }

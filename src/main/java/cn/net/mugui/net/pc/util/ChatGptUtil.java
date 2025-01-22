@@ -39,16 +39,8 @@ public class ChatGptUtil {
 
     public ConcurrentLinkedQueue<String> sendMsg(MessageBean msgBean, String gptModel) {
         HashMap<String, String> header = createHeader();
-
         List<MessageBean> all = MessageBean.all(msgBean.getSession_id());
-
-
-        LinkedList<MessageBean> list = new LinkedList<>();
-        MessageBean messageBean = MessageBean.initSystem();
-        list.add(messageBean);
-
         LinkedList<MessageBean> messageBeans = MessageBean.handleGptMessage(all);
-
 
         JSONObject object = new JSONObject();
         object.put("model", gptModel);

@@ -9,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.net.mugui.net.pc.bean.MessageBean;
 import cn.net.mugui.net.pc.bean.PcConversationalMsgBean;
 import cn.net.mugui.net.web.util.SysConf;
+import com.alibaba.fastjson.JSONObject;
 import com.microsoft.cognitiveservices.speech.*;
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
 import com.microsoft.cognitiveservices.speech.audio.AudioStreamFormat;
@@ -223,9 +224,9 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
                 if (split.length >= 2) {
                     String s2 = "";
                     for (int i = 0; i < split.length - 1; i++) {
-                        s2 =  s.substring(0, (s2+split[i]+1).length());
+                        s2 = s.substring(0, (s2 + split[i] + 1).length());
                     }
-                    s1 = s1 + s2 ;
+                    s1 = s1 + s2;
                     cache.put(messageBean.getMessage_id(), s1);
                     sendMsg(s2);
                 }
@@ -243,10 +244,15 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
         int i = content.indexOf("\"对话\":\"");
         if (i > 0) {
             String trim = content.substring(i + 6).trim();
-            int i1 = trim.indexOf("\"");
+            int i1 = trim.indexOf("\"}");
+            if (i1 > 0) {
+                return JSONObject.parseObject(content).getString("对话");
+            }
+            i1 = trim.indexOf("\"");
             if (i1 > 0) {
                 return trim.substring(0, i1);
             }
+            return trim;
         }
         return "";
     }

@@ -9,9 +9,13 @@ import com.mugui.base.base.Component;
 import com.mugui.base.client.net.auto.AutoTask;
 import com.mugui.base.client.net.base.Task;
 import com.mugui.base.client.net.task.TaskCycleImpl;
+import lombok.Getter;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+
+import java.util.List;
+import java.util.Vector;
 
 @Component
 @AutoTask
@@ -32,7 +36,18 @@ public class Mp3Task extends TaskCycleImpl<Music> {
         mediaPlayer = mediaPlayerFactory.mediaPlayers().newMediaPlayer();
         mediaPlayer.audio().setVolume(80);
         mediaPlayer.events().addMediaPlayerEventListener(mediaPlayerEventAdapter);
+
+        List<Music> list = Music.list();
+        index = 0;
+        for (Music music : list) {
+            musicLinkedList.add(music);
+        }
+
     }
+
+    private int index = 0;
+    private Vector<Music> musicLinkedList = new Vector<>();
+
 
     boolean playSuccess = true;
 
@@ -58,19 +73,54 @@ public class Mp3Task extends TaskCycleImpl<Music> {
     };
 
 
-    private Music now = null;
+    @Getter
+    private int nowIndex = -1;
 
 
     @Override
     protected void handle(Music poll) {
-//        if (!playSuccess) {
-//            getCycleList().addLast(poll);
-//            return;
-//        }
-//        playSuccess = false;
-        now = poll;
-        play();
+        synchronized (this) {
+            int index = getIndex(poll);
+            if (index == -1) {
+                if (nowIndex == -1) {
+                    musicLinkedList.add(poll);
+                    nowIndex = musicLinkedList.size() - 1;
+                } else {
+                    musicLinkedList.add(nowIndex + 1, poll);
+                    nowIndex++;
+                }
+            } else {
+                if(nowIndex==-1){
+                    nowIndex=index;
+                }
+                if(nowIndex>index){
+                    musicLinkedList.remove(index);
+                    musicLinkedList.add(nowIndex, poll);
+                }else if(nowIndex<index){
+                    musicLinkedList.remove(index);
+                    musicLinkedList.add(nowIndex+1, poll);
+                    nowIndex++;
+                }else {
+                    nowIndex=index;
+                }
+            }
+            play();
+        }
+
     }
+
+    private int getIndex(Music poll) {
+        int index = -1;
+        for (int i = 0; i < musicLinkedList.size(); i++) {
+            Music music = musicLinkedList.get(i);
+            if (music.getId().equals(poll.getId())) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
 
     @Override
     public void add(Music data) {
@@ -83,31 +133,37 @@ public class Mp3Task extends TaskCycleImpl<Music> {
     }
 
     @Autowired
-    private NetEaseMusic netEaseMusic ;
+    private NetEaseMusic netEaseMusic;
 
     public void play() {
-        if (now == null) {
-            now = Music.by(new Music());
-        }
-        if(!playSuccess){
+        if (!playSuccess) {
             mediaPlayer.controls().stop();
         }
-
-        String source = netEaseMusic.source(now.getId());
-        if(source!=null){
+        if (nowIndex < 0) {
+            nowIndex = 0;
+        }
+        Music music = musicLinkedList.get(nowIndex);
+        String source = netEaseMusic.source(music.getId());
+        if (source != null) {
             mediaPlayer.media().play(source);
-        }else {
+        } else {
             nextMusic();
         }
     }
 
     public void nextMusic() {
-        now = Music.next(now);
+        nowIndex++;
+        if(nowIndex>=musicLinkedList.size()){
+            nowIndex=0;
+        }
         play();
     }
 
     public void lastMusic() {
-        now = Music.last(now);
+        nowIndex--;
+        if(nowIndex<0){
+            nowIndex=musicLinkedList.size()-1;
+        }
         play();
     }
 
@@ -122,4 +178,7 @@ public class Mp3Task extends TaskCycleImpl<Music> {
         mediaPlayer.audio().setVolume(mediaPlayer.audio().volume() + 10);
     }
 
+    public Vector<Music> list() {
+        return musicLinkedList;
+    }
 }

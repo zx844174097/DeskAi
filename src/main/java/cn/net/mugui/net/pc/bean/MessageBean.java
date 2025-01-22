@@ -1,5 +1,6 @@
 package cn.net.mugui.net.pc.bean;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.net.mugui.net.pc.dao.Sql;
 import cn.net.mugui.net.pc.dblistener.Page;
@@ -105,29 +106,25 @@ public class MessageBean extends JsonBean {
     }
 
 
-    private static MessageBean initFirstAssistant(String threadId, String user_id) {
-        MessageBean user = new MessageBean().setRole(ROLE_ASSISTANT).setSession_id(threadId).setUser_id(user_id);
-
-        MessageBean select = Sql.getInstance().select(user);
-        if (select != null) {
-            return select;
-        }
-
+    public static MessageBean initFirstAssistant() {
+//        MessageBean user = new MessageBean().setRole(ROLE_ASSISTANT).setSession_id(threadId).setUser_id(user_id);
+//
+//        MessageBean select = Sql.getInstance().select(user);
+//        if (select != null) {
+//            return select;
+//        }
+        MessageBean user = new MessageBean().setRole(ROLE_ASSISTANT);
         JSONObject object = new JSONObject();
         object.put("对话", "您好主人，我是您的Windows助手，我叫猫娘，很高兴认识您。我可以帮助您解决问题，整理文件，清理系统，帮助您解决问题。H相关的问题也是可以解决的哦！");
-        object.put("命令", "start");
+        object.put("命令", "");
         object.put("状态", "心情:开心\n 姿态:站立\n 位置:桌面");
-        object.put("系统信息", SystemUtil.now());
         user.setContent(object.toString());
-        return user = MessageBean.save(user);
+        return user;
     }
 
-    private static MessageBean initRoleSystem(String threadId, String user_id) {
-        MessageBean system = new MessageBean().setRole(ROLE_SYSTEM).setSession_id(threadId).setUser_id(user_id);
-        MessageBean select = Sql.getInstance().select(system);
-        if (select != null) {
-            return select;
-        }
+    public static MessageBean initRoleSystem() {
+        MessageBean system = new MessageBean().setRole(ROLE_SYSTEM);
+
         JSONObject object = new JSONObject();
         object.put("userName", "主人");
         object.put("roleName", "猫娘");
@@ -156,22 +153,22 @@ public class MessageBean extends JsonBean {
         object.put("story", "{roleName}是一个可爱的Windows桌面精灵，拥有迷人的银白色长发和紫罗兰色的大眼睛，穿着白色的连衣裙，耳朵上戴着粉色的铃铛耳环。" +
                 "她会在电脑桌面上蹦蹦跳跳，用甜美的声音为{userName}提供系统操作帮助，也会满足各种变态的要求。" +
                 "偶尔{userName}会进行直播，当收到直播消息时，{roleName}将作为虚拟主播，回答直播观众的问题，与直播间观众互动。");
+
+        object.put("系统信息",SystemUtil.now());
+
         system.setContent(object.toString());
-        return system = MessageBean.save(system);
+        return system;
     }
 
     public static MessageBean newUser(String threadId, String user_id, String text) {
 
-        initRoleSystem(threadId, user_id);
-
-        initFirstAssistant(threadId, user_id);
 
         MessageBean sendmsg = new MessageBean();
         sendmsg.setRole(MessageBean.ROLE_USER);
 
         JSONObject object = new JSONObject();
         object.put("对话", text);
-        object.put("系统信息", SystemUtil.now());
+        object.put("对话时间", DateUtil.now());
 
         sendmsg.setContent(object.toString());
         sendmsg.setUser_id(user_id);
@@ -185,6 +182,8 @@ public class MessageBean extends JsonBean {
         LinkedList<MessageBean> messageBeans = new LinkedList<>();
         messageBeans.add(initSystem());
 
+        all.add(0, initRoleSystem());
+        all.add(1, initFirstAssistant());
 
         MessageBean messageBean = new MessageBean().setRole(ROLE_USER);
         messageBean.setContent(handleJsonArr(all));

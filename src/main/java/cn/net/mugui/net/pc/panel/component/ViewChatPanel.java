@@ -72,10 +72,15 @@ public class ViewChatPanel extends JPanel {
         int i = content.indexOf("\"对话\":\"");
         if (i>0) {
             String trim = content.substring(i + 6).trim();
-            int i1 = trim.indexOf("\"");
-            if (i1>0) {
+            int i1 = trim.indexOf("\"}");
+            if (i1 > 0) {
+                return JSONObject.parseObject(content).getString("对话");
+            }
+            i1 = trim.indexOf("\"");
+            if (i1 > 0) {
                 return trim.substring(0, i1);
             }
+            return trim;
         }
         return "";
     }

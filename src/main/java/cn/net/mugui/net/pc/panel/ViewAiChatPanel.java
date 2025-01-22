@@ -111,7 +111,6 @@ public class ViewAiChatPanel extends DPanel {
 
         MessageBean systemMsg = all.remove(0);
         JSONObject object = JSONObject.parseObject(systemMsg.getContent());
-        all.remove(0);
         for (MessageBean bean : all) {
             add(bean, object);
         }
@@ -119,8 +118,10 @@ public class ViewAiChatPanel extends DPanel {
 
     public void add(MessageBean sendmsg) {
         try {
-            MessageBean messageBean1 = MessageBean.byDesc(new MessageBean().setRole(MessageBean.ROLE_SYSTEM).setSession_id(sendmsg.getSession_id()));
-            add(sendmsg, JSONObject.parseObject(messageBean1.getContent()));
+            JSONObject object = new JSONObject();
+            object.put("userName", "主人");
+            object.put("roleName", "猫娘");
+            add(sendmsg, object);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -84,7 +84,7 @@ public class DouyuWebsocket extends WebSocketClient {
     /**
      * 处理消息
      */
-    final static byte[] bufferRecv = new byte[2048];
+    final static byte[] bufferRecv = new byte[4096];
     final static Pattern pUID = Pattern.compile("/uid@=([0-9]+)/");
     final static Pattern pLevel = Pattern.compile("/level@=([0-9]+)/");
     final static Pattern pName = Pattern.compile("/nn@=(.*?)/[a-z]+@=");
@@ -143,6 +143,7 @@ public class DouyuWebsocket extends WebSocketClient {
                 group= matcher.group(1);
             }
             if(group==null){
+                System.out.println("group :"+msg);
                 return;
             }
             for (IMsgHandler handler : handlers) {
