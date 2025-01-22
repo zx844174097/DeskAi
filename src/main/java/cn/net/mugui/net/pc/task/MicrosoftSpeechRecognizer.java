@@ -2,12 +2,16 @@
 package cn.net.mugui.net.pc.task;
 
 import java.io.*;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.StrUtil;
 import cn.net.mugui.net.pc.bean.MessageBean;
 import cn.net.mugui.net.pc.bean.PcConversationalMsgBean;
+import cn.net.mugui.net.pc.dao.Sql;
+import cn.net.mugui.net.pc.util.ChatGptUtil;
 import cn.net.mugui.net.web.util.SysConf;
 import com.alibaba.fastjson.JSONObject;
 import com.microsoft.cognitiveservices.speech.*;
@@ -111,9 +115,20 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
     private final EventHandler<SpeechRecognitionEventArgs> recognizingEventHandler = new EventHandler<>() {
         @Override
         public void onEvent(Object sender, SpeechRecognitionEventArgs eventArgs) {
-            System.out.println("Recognizing: " + eventArgs.getResult().getText());
+            String text = eventArgs.getResult().getText();
+            System.out.println("Recognizing: " + text);
+            if (masternow == null) {
+                String threadId = chatGptUtil.createThread("master");
+                masternow = MessageBean.newUser(threadId, "master", text);
+            } else {
+                MessageBean.updateUserContent(masternow, text);
+            }
+            desktopAiTask.add(masternow);
         }
     };
+    MessageBean masternow = null;
+    @Autowired
+    private ChatGptUtil chatGptUtil;
 
     private final EventHandler<SpeechRecognitionEventArgs> recognizedEventHandler = new EventHandler<>() {
         @SneakyThrows
@@ -124,11 +139,12 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
                 System.out.println("RECOGNIZED: Text=" + result.getText());
                 if (StrUtil.isNotBlank(result.getText())) {
 
-                    DesktopAiTask.Data data = new DesktopAiTask.Data();
-                    data.setType(DesktopAiTask.Data.Type.Master);
-                    data.setText(result.getText());
-                    desktopAiTask.add(data);
+                    MessageBean.updateUserContent(masternow, result.getText());
+                    masternow.setStatus(MessageBean.Status.SUCCESS.getValue());
+                    Sql.getInstance().updata(masternow);
 
+                    desktopAiTask.add(masternow);
+                    masternow = null;
                     isRecognizing = false;
                 }
             }
@@ -141,6 +157,67 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
 
     @Override
     public void run() {
+        while (true) {
+            try {
+                MessageBean poll = messageBeans.poll();
+                if (poll == null) {
+                    synchronized (messageBeans) {
+                        poll = messageBeans.poll();
+                        if (poll == null) {
+                            messageBeans.wait();
+                            continue;
+                        }
+                    }
+                }
+                handle(poll);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    Integer now = null;
+
+    private void handle(MessageBean messageBean) {
+        try {
+            while (true) {
+                now = messageBean.getMessage_id();
+                String s = viewContent(messageBean.getContent());
+                if (StrUtil.isNotBlank(s)) {
+
+                    String s1 = cache.get(messageBean.getMessage_id());
+                    if (StrUtil.isNotBlank(s1)) {
+                        s = s.substring(s1.length());
+                    } else {
+                        s1 = "";
+                    }
+                    if (messageBean.getStatus() == MessageBean.Status.SUCCESS.getValue()) {
+                        cache.remove(messageBean.getMessage_id());
+                        sendMsg(s);
+                        return;
+                    }
+                    //从标点切分s
+                    String[] split = s.split("[，。！？；：,.!?;:]");
+                    if (split.length >= 2) {
+                        String s2 = "";
+                        for (int i = 0; i < split.length - 1; i++) {
+                            s2 = s.substring(0, (s2 + split[i] + 1).length());
+                        }
+                        s1 = s1 + s2;
+                        cache.put(messageBean.getMessage_id(), s1);
+                        sendMsg(s2);
+                        continue;
+                    }
+                    return;
+                }
+                return;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            now = null;
+        }
     }
 
     private final EventHandler<SpeechSynthesisEventArgs> synthesisStarted = new EventHandler<>() {
@@ -203,38 +280,18 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
         cache.schedulePrune(1000 * 60 * 5);
     }
 
+    ConcurrentLinkedQueue<MessageBean> messageBeans = new ConcurrentLinkedQueue<>();
+
+
     public void speech(MessageBean messageBean) {
-        try {
-            String s = viewContent(messageBean.getContent());
-            if (StrUtil.isNotBlank(s)) {
-
-                String s1 = cache.get(messageBean.getMessage_id());
-                if (StrUtil.isNotBlank(s1)) {
-                    s = s.substring(s1.length());
-                } else {
-                    s1 = "";
-                }
-                if (messageBean.getStatus() == MessageBean.Status.SUCCESS.getValue()) {
-                    cache.remove(messageBean.getMessage_id());
-                    sendMsg(s);
-                    return;
-                }
-                //从标点切分s
-                String[] split = s.split("[，。！？；：,.!?;:]");
-                if (split.length >= 2) {
-                    String s2 = "";
-                    for (int i = 0; i < split.length - 1; i++) {
-                        s2 = s.substring(0, (s2 + split[i] + 1).length());
-                    }
-                    s1 = s1 + s2;
-                    cache.put(messageBean.getMessage_id(), s1);
-                    sendMsg(s2);
-                }
-
+        synchronized (messageBeans) {
+            if (Objects.equals(now, messageBean.getMessage_id())) {
+                return;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            messageBeans.add(messageBean);
+            messageBeans.notifyAll();
         }
+
     }
 
     private String viewContent(String content) {

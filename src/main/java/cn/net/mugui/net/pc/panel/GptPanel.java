@@ -61,7 +61,7 @@ public class GptPanel extends FunctionUI {
 
         if (chatDialog == null) {
             chatDialog = new ChatDialog(viewAiChatPanel);
-            chatDialog.setBounds(0, 0, 600, Toolkit.getDefaultToolkit().getScreenSize().height-100);
+            chatDialog.setBounds(0, 0, 600, Toolkit.getDefaultToolkit().getScreenSize().height - 100);
             chatDialog.setVisible(true);
             viewAiChatPanel.init(chatDialog);
 
@@ -217,11 +217,11 @@ public class GptPanel extends FunctionUI {
                     if (StrUtil.isBlank(text)) {
                         return;
                     }
-
-                    DesktopAiTask.Data data = new DesktopAiTask.Data();
-                    data.setType(DesktopAiTask.Data.Type.Master);
-                    data.setText(text);
-                    desktopAiTask.add(data);
+                    String threadId = chatGptUtil.createThread("master");
+                    MessageBean messageBean1 = MessageBean.newUser(threadId, "master", text);
+                    messageBean1.setStatus(MessageBean.Status.SUCCESS.getValue());
+                    MessageBean.update(messageBean1);
+                    desktopAiTask.add(messageBean1);
                 })
         );
         JScrollPane scrollPane = new JScrollPane();

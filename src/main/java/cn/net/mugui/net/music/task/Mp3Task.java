@@ -4,6 +4,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.net.mugui.net.music.domain.Music;
 import cn.net.mugui.net.music.source.impl.NetEaseMusic;
 import cn.net.mugui.net.pc.dao.Sql;
+import cn.net.mugui.net.web.util.SysConf;
 import com.mugui.base.base.Autowired;
 import com.mugui.base.base.Component;
 import com.mugui.base.client.net.auto.AutoTask;
@@ -32,9 +33,13 @@ public class Mp3Task extends TaskCycleImpl<Music> {
         Sql.getInstance().createTable(Music.class);
         playSuccess = true;
 
-        MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
+        MediaPlayerFactory mediaPlayerFactory =new MediaPlayerFactory("--aout=directsound", "--gain=1.0");
         mediaPlayer = mediaPlayerFactory.mediaPlayers().newMediaPlayer();
-        mediaPlayer.audio().setVolume(80);
+        String value = sysConf.getValue("music.volume");
+        if (value != null) {
+            mediaPlayer.audio().setVolume(Integer.parseInt(value));
+        } else
+            mediaPlayer.audio().setVolume(80);
         mediaPlayer.events().addMediaPlayerEventListener(mediaPlayerEventAdapter);
 
         List<Music> list = Music.list();
@@ -42,6 +47,15 @@ public class Mp3Task extends TaskCycleImpl<Music> {
         for (Music music : list) {
             musicLinkedList.add(music);
         }
+        ThreadUtil.execute(new Runnable() {
+            @Override
+            public void run() {
+                play();
+                //暂停
+                mediaPlayer.controls().pause();
+                mediaPlayer.controls().stop();
+            }
+        });
 
     }
 
@@ -90,18 +104,18 @@ public class Mp3Task extends TaskCycleImpl<Music> {
                     nowIndex++;
                 }
             } else {
-                if(nowIndex==-1){
-                    nowIndex=index;
+                if (nowIndex == -1) {
+                    nowIndex = index;
                 }
-                if(nowIndex>index){
+                if (nowIndex > index) {
                     musicLinkedList.remove(index);
                     musicLinkedList.add(nowIndex, poll);
-                }else if(nowIndex<index){
+                } else if (nowIndex < index) {
                     musicLinkedList.remove(index);
-                    musicLinkedList.add(nowIndex+1, poll);
+                    musicLinkedList.add(nowIndex + 1, poll);
                     nowIndex++;
-                }else {
-                    nowIndex=index;
+                } else {
+                    nowIndex = index;
                 }
             }
             play();
@@ -153,29 +167,33 @@ public class Mp3Task extends TaskCycleImpl<Music> {
 
     public void nextMusic() {
         nowIndex++;
-        if(nowIndex>=musicLinkedList.size()){
-            nowIndex=0;
+        if (nowIndex >= musicLinkedList.size()) {
+            nowIndex = 0;
         }
         play();
     }
 
     public void lastMusic() {
         nowIndex--;
-        if(nowIndex<0){
-            nowIndex=musicLinkedList.size()-1;
+        if (nowIndex < 0) {
+            nowIndex = musicLinkedList.size() - 1;
         }
         play();
     }
 
+    @Autowired
+    private SysConf sysConf;
 
     //降低音量
     public void lowerVolume() {
         mediaPlayer.audio().setVolume(mediaPlayer.audio().volume() - 10);
+        sysConf.setValue("music.volume", mediaPlayer.audio().volume() + "");
     }
 
     //增加音量
     public void increaseVolume() {
         mediaPlayer.audio().setVolume(mediaPlayer.audio().volume() + 10);
+        sysConf.setValue("music.volume", mediaPlayer.audio().volume() + "");
     }
 
     public Vector<Music> list() {

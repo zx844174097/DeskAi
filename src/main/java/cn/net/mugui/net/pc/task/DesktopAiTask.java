@@ -19,54 +19,23 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
 @Task
 @AutoTask
-public class DesktopAiTask extends TaskCycleImpl<DesktopAiTask.Data> {
-    @Getter
-    @Setter
-    @Accessors(chain = true)
-    public static class Data extends JsonBean {
+public class DesktopAiTask extends TaskCycleImpl<MessageBean> {
 
-        private Type type;
-
-        public enum Type {
-            Master,
-            douyu_live,
-            Other
-        }
-
-        private String text;
-
-        private String user;
-
-    }
-
-
-    boolean isHandle=false;
+    boolean isHandle = false;
 
 
     @Override
-    protected void handle(Data poll) {
-        isHandle=true;
-        if (poll.type == Data.Type.Master) {
+    protected void handle(MessageBean poll) {
+        isHandle = true;
             handleMaster(poll);
-        } else if (poll.type == Data.Type.douyu_live) {
-            handleDouyuLive(poll);
-        }
-        isHandle=false;
+        isHandle = false;
 
-    }
-
-    private void handleDouyuLive(Data poll) {
-
-        JSONObject object = new JSONObject();
-        object.put("直播间用户", poll.getUser());
-        object.put("该用户消息", poll.getText());
-        poll.setText(object.toJSONString());
-        handleMaster(poll);
     }
 
     @Autowired
@@ -80,15 +49,12 @@ public class DesktopAiTask extends TaskCycleImpl<DesktopAiTask.Data> {
     private SysConf sysConf;
 
 
-    private void handleMaster(Data data) {
+    private void handleMaster(MessageBean sendmsg) {
 
-        String threadId = chatGptUtil.createThread("master");
-        MessageBean sendmsg = MessageBean.newUser(threadId, "master", data.getText().trim());
-        if (data.type == Data.Type.douyu_live) {
-            sendmsg.setRole(MessageBean.ROLE_LIVE_USER);
-            MessageBean.update(sendmsg);
+        if(sendmsg.getStatus()==MessageBean.Status.READING.getValue()){
+            viewAiChatPanel.add(sendmsg);
+            return;
         }
-        viewAiChatPanel.add(sendmsg);
 
         String getGptModel = sysConf.getValue("chatGpt.model");
 
@@ -123,8 +89,8 @@ public class DesktopAiTask extends TaskCycleImpl<DesktopAiTask.Data> {
         MessageBean.update(messageBean);
         microsoftSpeechRecognizer.speech(messageBean);
 
-        if(messageBean.getContent()!=null&&!JSONValidator.from(messageBean.getContent()).validate()){
-           microsoftSpeechRecognizer.sendMsg(messageBean.getContent());
+        if (messageBean.getContent() != null && !JSONValidator.from(messageBean.getContent()).validate()) {
+            microsoftSpeechRecognizer.sendMsg(messageBean.getContent());
         }
 
         System.out.println(messageBean);
@@ -139,7 +105,7 @@ public class DesktopAiTask extends TaskCycleImpl<DesktopAiTask.Data> {
     private MicrosoftSpeechRecognizer microsoftSpeechRecognizer;
 
     @Override
-    public void add(Data data) {
+    public void add(MessageBean data) {
         if (isHandle) {
             return;
         }

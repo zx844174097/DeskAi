@@ -117,14 +117,19 @@ public class ViewAiChatPanel extends DPanel {
     }
 
     public void add(MessageBean sendmsg) {
-        try {
-            JSONObject object = new JSONObject();
-            object.put("userName", "主人");
-            object.put("roleName", "猫娘");
-            add(sendmsg, object);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONObject object = new JSONObject();
+                    object.put("userName", "主人");
+                    object.put("roleName", "猫娘");
+                    add(sendmsg, object);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
 }

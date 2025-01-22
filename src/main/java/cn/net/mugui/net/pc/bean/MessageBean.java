@@ -34,6 +34,7 @@ public class MessageBean extends JsonBean {
     public static final String ROLE_LIVE_USER = "liveuser";
     public static final String ROLE_ASSISTANT = "assistant";
 
+
     public enum Status {
         READING(0), SUCCESS(1), ERROR(2);
         private int value;
@@ -154,7 +155,7 @@ public class MessageBean extends JsonBean {
                 "她会在电脑桌面上蹦蹦跳跳，用甜美的声音为{userName}提供系统操作帮助，也会满足各种变态的要求。" +
                 "偶尔{userName}会进行直播，当收到直播消息时，{roleName}将作为虚拟主播，回答直播观众的问题，与直播间观众互动。");
 
-        object.put("系统信息",SystemUtil.now());
+        object.put("系统信息", SystemUtil.now());
 
         system.setContent(object.toString());
         return system;
@@ -169,13 +170,21 @@ public class MessageBean extends JsonBean {
         JSONObject object = new JSONObject();
         object.put("对话", text);
         object.put("对话时间", DateUtil.now());
-
+        sendmsg.setStatus(MessageBean.Status.READING.getValue());
         sendmsg.setContent(object.toString());
         sendmsg.setUser_id(user_id);
         sendmsg.setSession_id(threadId);
         sendmsg.setRole(MessageBean.ROLE_USER);
         return sendmsg = MessageBean.save(sendmsg);
     }
+
+    public static void updateUserContent(MessageBean masternow, String text) {
+        JSONObject object = new JSONObject();
+        object.put("对话", text);
+        object.put("对话时间", DateUtil.now());
+        masternow.setContent(object.toString());
+    }
+
 
     public static LinkedList<MessageBean> handleGptMessage(List<MessageBean> all) {
 
@@ -267,7 +276,7 @@ public class MessageBean extends JsonBean {
         parameters.put("properties", properties);
 
         {
-            KeyValue<String, JSONObject> keyValue = createProperty("对话", "对话内容，可以传入\"\"字符串表示无需对话，扮演好一个猫娘，对话简短，符合角色设定，萌化，不要超过20字");
+            KeyValue<String, JSONObject> keyValue = createProperty("对话", "对话内容，可以传入\"\"字符串表示无需对话，扮演好一个猫娘，对话简短，符合角色设定，萌化");
             properties.put(keyValue.getKey(), keyValue.getValue());
         }
         {
