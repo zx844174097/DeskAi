@@ -33,7 +33,7 @@ public class Mp3Task extends TaskCycleImpl<Music> {
         Sql.getInstance().createTable(Music.class);
         playSuccess = true;
 
-        MediaPlayerFactory mediaPlayerFactory =new MediaPlayerFactory("--aout=directsound", "--gain=1.0");
+        MediaPlayerFactory mediaPlayerFactory =new MediaPlayerFactory();
         mediaPlayer = mediaPlayerFactory.mediaPlayers().newMediaPlayer();
         String value = sysConf.getValue("music.volume");
         if (value != null) {

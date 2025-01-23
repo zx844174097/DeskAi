@@ -84,4 +84,15 @@ public class ViewChatPanel extends JPanel {
         }
         return "";
     }
+
+    @Override
+    public void paint(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g.create();
+        // 半透明背景
+        g2d.setComposite(AlphaComposite.SrcOver.derive(1f)); // 透明度调整
+        g2d.setColor(new Color(0, 0, 0, 128)); // 半透明黑色背景
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        super.paint(g2d);
+        g2d.dispose();
+    }
 }

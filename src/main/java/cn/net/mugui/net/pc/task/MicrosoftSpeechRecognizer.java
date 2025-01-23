@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.net.mugui.net.pc.bean.MessageBean;
 import cn.net.mugui.net.pc.bean.PcConversationalMsgBean;
 import cn.net.mugui.net.pc.dao.Sql;
+import cn.net.mugui.net.pc.panel.ViewAiChatPanel;
 import cn.net.mugui.net.pc.util.ChatGptUtil;
 import cn.net.mugui.net.web.util.SysConf;
 import com.alibaba.fastjson.JSONObject;
@@ -26,6 +27,7 @@ import com.mugui.base.base.InitMethod;
 import com.mugui.base.client.net.auto.AutoTask;
 import com.mugui.base.client.net.base.Task;
 import com.mugui.base.client.net.task.TaskImpl;
+import com.mugui.util.Other;
 import lombok.SneakyThrows;
 
 import javax.sound.sampled.*;
@@ -123,7 +125,7 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
             } else {
                 MessageBean.updateUserContent(masternow, text);
             }
-            desktopAiTask.add(masternow);
+            viewAiChatPanel.add(masternow);
         }
     };
     MessageBean masternow = null;
@@ -138,7 +140,6 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
                 SpeechRecognitionResult result = eventArgs.getResult();
                 System.out.println("RECOGNIZED: Text=" + result.getText());
                 if (StrUtil.isNotBlank(result.getText())) {
-
                     MessageBean.updateUserContent(masternow, result.getText());
                     masternow.setStatus(MessageBean.Status.SUCCESS.getValue());
                     Sql.getInstance().updata(masternow);
@@ -154,6 +155,8 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
     @Autowired
     private DesktopAiTask desktopAiTask;
 
+    @Autowired
+    private ViewAiChatPanel viewAiChatPanel;
 
     @Override
     public void run() {
@@ -186,13 +189,19 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
                 if (StrUtil.isNotBlank(s)) {
 
                     String s1 = cache.get(messageBean.getMessage_id());
+                    if(StrUtil.equals(s1,s)){
+                        return;
+                    }
                     if (StrUtil.isNotBlank(s1)) {
                         s = s.substring(s1.length());
                     } else {
                         s1 = "";
                     }
+                    if(StrUtil.isBlank(s)){
+                        return;
+                    }
                     if (messageBean.getStatus() == MessageBean.Status.SUCCESS.getValue()) {
-                        cache.remove(messageBean.getMessage_id());
+                        cache.put(messageBean.getMessage_id(), messageBean.getContent());
                         sendMsg(s);
                         return;
                     }
@@ -206,6 +215,7 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
                         s1 = s1 + s2;
                         cache.put(messageBean.getMessage_id(), s1);
                         sendMsg(s2);
+                        Other.sleep(50);
                         continue;
                     }
                     return;

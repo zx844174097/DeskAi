@@ -33,7 +33,7 @@ public class DesktopAiTask extends TaskCycleImpl<MessageBean> {
     @Override
     protected void handle(MessageBean poll) {
         isHandle = true;
-            handleMaster(poll);
+        handleMaster(poll);
         isHandle = false;
 
     }
@@ -51,8 +51,8 @@ public class DesktopAiTask extends TaskCycleImpl<MessageBean> {
 
     private void handleMaster(MessageBean sendmsg) {
 
-        if(sendmsg.getStatus()==MessageBean.Status.READING.getValue()){
-            viewAiChatPanel.add(sendmsg);
+        viewAiChatPanel.add(sendmsg);
+        if (sendmsg.getStatus() == MessageBean.Status.READING.getValue()) {
             return;
         }
 

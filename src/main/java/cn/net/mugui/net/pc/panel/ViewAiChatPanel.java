@@ -17,7 +17,7 @@ import com.mugui.util.Other;
 
 @Component
 public class ViewAiChatPanel extends DPanel {
-    JScrollPane scrollPane = new JScrollPane() ;
+    JScrollPane scrollPane = new JScrollPane();
 
     public ViewAiChatPanel() {
         super();
@@ -34,7 +34,7 @@ public class ViewAiChatPanel extends DPanel {
 
     }
 
-    JPanel listPanel = new JPanel() ;
+    JPanel listPanel = new JPanel();
 
 
     @Override
@@ -42,27 +42,33 @@ public class ViewAiChatPanel extends DPanel {
 
     }
 
+    boolean update = false;
 
     private void add(MessageBean bean, JSONObject systemObject) {
 
         if (Objects.equals(bean.getRole(), MessageBean.ROLE_LIVE_USER)) {
             return;
         }
+        if (!update) {
+            update = true;
+            ThreadUtil.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Other.sleep(100);
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            father.repaint();
+                            listPanel.revalidate();
+                            scrollPane.revalidate();
+                            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+                            update = false;
+                        }
+                    });
+                }
+            });
+        }
 
-        ThreadUtil.execute(new Runnable() {
-            @Override
-            public void run() {
-                Other.sleep(100);
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        listPanel.revalidate();
-                        scrollPane.revalidate();
-                        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
-                    }
-                });
-            }
-        });
 
         java.awt.Component[] components = listPanel.getComponents();
         for (java.awt.Component component : components) {
