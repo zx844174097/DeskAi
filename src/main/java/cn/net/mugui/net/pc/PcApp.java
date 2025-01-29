@@ -10,6 +10,7 @@ import com.mugui.base.base.Autowired;
 import com.mugui.base.client.net.baghandle.NetBagModuleManager;
 import com.mugui.base.client.net.classutil.DataSave;
 import com.mugui.sql.DBConf;
+import com.teamdev.jxbrowser.logging.Logger;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.fusesource.jansi.AnsiConsole;
@@ -33,7 +34,7 @@ public class PcApp {
 		DBConf.getDefaultDBConf().readConf("org.sqlite.JDBC", "jdbc:sqlite:" + DataSave.APP_PATH + "//e.dll", "root",
 				"mugui123");
 
-
+		Logger.off();
 		DataSave.context = new ApplicationContext();
 		DataSave.context.init("cn.net.mugui", "com.mugui");
 		DataSave.context.getBean(NetBagModuleManager.class).init(PcApp.class);

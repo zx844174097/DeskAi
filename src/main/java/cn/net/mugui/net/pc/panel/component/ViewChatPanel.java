@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Date;
 
 public class ViewChatPanel extends JPanel {
 
@@ -60,7 +61,7 @@ public class ViewChatPanel extends JPanel {
         } else {
             userLabel.setText("系统");
         }
-        timeLabel.setText("\t"+DateUtil.formatDateTime(bean.getCreate_time()));
+        timeLabel.setText("\t"+DateUtil.formatDateTime(new Date(bean.getCreate_time().getTime()+8*60*60*1000)));
         textArea.setText(viewContent());
     }
 

@@ -281,7 +281,7 @@ public class MessageBean extends JsonBean {
         }
         {
             KeyValue<String, JSONObject> keyValue = createProperty("命令",
-                    "这里放置相关的系统cmd命令操作，可以传入\"\"字符串表示无需要执行的命令，一下是命令列表\n1.系统cmd命令支持，如：\"cmd /c start www.baidu.com?s=hello\"\n" +
+                    "这里放置相关的系统cmd命令操作，可以传入\"\"字符串表示无需要执行的命令，一下是命令列表\n1.系统cmd命令支持，如：\"cmd /c start www.baidu.com/s?wd=[搜索关键字]\"\n" +
                             "2.自定义命令->音乐播放命令：\"playMusic [歌名或关键字]    说明:[]中为参数,需要填入具体歌名或作者名或歌曲关键字\"\n" +
                             "3.自定义命令->播放器控制命令：\"toggleMusic [play|pause|nextMusic|lastMusic]  说明：播放|暂停|下一首|上一首\"\n"
             );

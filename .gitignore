@@ -20,3 +20,6 @@ buildNumber.properties
 /logs/
 *.iml
 /e.dll
+lib
+cache
+userData

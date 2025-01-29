@@ -207,6 +207,22 @@
 			<version>2.2.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.teamdev.jxbrowser</groupId>
+			<artifactId>JxBrowser-swing</artifactId>
+			<version>7.22</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.teamdev.jxbrowser</groupId>
+			<artifactId>JxBrowser</artifactId>
+			<version>7.22</version>
+		</dependency>
+		<dependency>
+			<groupId>com.teamdev.jxbrowser</groupId>
+			<artifactId>JxBrowser-win64</artifactId>
+			<version>7.22</version>
+		</dependency>
 
 	</dependencies>
 	<build>
