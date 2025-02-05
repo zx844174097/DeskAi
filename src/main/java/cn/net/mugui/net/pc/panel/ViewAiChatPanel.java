@@ -115,7 +115,8 @@ public class ViewAiChatPanel extends DPanel {
         }
         List<MessageBean> all = MessageBean.all(messageBean.getSession_id());
 
-        MessageBean systemMsg = all.remove(0);
+//        MessageBean systemMsg = all.remove(0);
+        MessageBean systemMsg = MessageBean.initRoleSystem();
         JSONObject object = JSONObject.parseObject(systemMsg.getContent());
         for (MessageBean bean : all) {
             add(bean, object);

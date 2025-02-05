@@ -28,7 +28,7 @@ public class DouyuTMUtil {
     public void start() {
         if (chatDialog == null) {
             chatDialog = new ChatDialog(viewTMChatPanel);
-            chatDialog.setBounds(Toolkit.getDefaultToolkit().getScreenSize().width - 400, 0, 400, Toolkit.getDefaultToolkit().getScreenSize().height-100);
+            chatDialog.setBounds(Toolkit.getDefaultToolkit().getScreenSize().width - 400, 0, 400, 400);
             chatDialog.setVisible(true);
             viewTMChatPanel.init(chatDialog);
             douyuDanmuku.start();

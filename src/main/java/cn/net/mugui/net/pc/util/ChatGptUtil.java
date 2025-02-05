@@ -35,8 +35,6 @@ public class ChatGptUtil {
     private Sql sql;
 
 
-
-
     public ConcurrentLinkedQueue<String> sendMsg(MessageBean msgBean, String gptModel) {
         HashMap<String, String> header = createHeader();
         List<MessageBean> all = MessageBean.all(msgBean.getSession_id());
@@ -52,7 +50,10 @@ public class ChatGptUtil {
     }
 
 
-    private ConcurrentLinkedQueue<String> sendSteamGptMsg(HashMap<String, String> header, String url, String postBody) {
+    private ConcurrentLinkedQueue<String> sendSteamGptMsg(HashMap<String, String> header, String url, String postBody,int i) {
+        if(i>2){
+            throw new RuntimeException("系统错误");
+        }
         ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
         try {
             System.out.println(url + "----->" + postBody);
@@ -87,7 +88,11 @@ public class ChatGptUtil {
                                                 .getJSONObject("delta");
                                         String content = jsonObject.getString("content");
                                         if (content != null) {
-                                            queue.add(content);
+                                            ConcurrentLinkedQueue<String> strings = sendSteamGptMsg(header, url, postBody,i+1);
+                                            for (String string : strings) {
+                                                queue.add(string);
+                                            }
+                                            return;
                                         }
                                         JSONObject function_call = jsonObject.getJSONObject("function_call");
                                         if (function_call != null) {
@@ -112,6 +117,10 @@ public class ChatGptUtil {
             queue.add("[done]");
         }
         return queue;
+    }
+
+    private ConcurrentLinkedQueue<String> sendSteamGptMsg(HashMap<String, String> header, String url, String postBody) {
+        return sendSteamGptMsg(header, url, postBody,0);
     }
 
     private LinkedList<AbstractMap.SimpleEntry<String, String>> getGptRunsSteps(String threadId, String runsId) {
@@ -351,8 +360,6 @@ public class ChatGptUtil {
     }
 
 
-
-
     /**
      * 创建gpt线程id
      *
@@ -360,17 +367,17 @@ public class ChatGptUtil {
      * @return
      */
     public String createThread(String getUserId) {
-        String threadId =sysConf.getValue("chatGpt.threadId."+getUserId);
+        String threadId = sysConf.getValue("chatGpt.threadId." + getUserId);
         if (StrUtil.isNotBlank(threadId)) {
             return threadId;
         }
         String string = UUID.fastUUID().toString(true);
-        sysConf.setValue("chatGpt.threadId."+getUserId,string);
+        sysConf.setValue("chatGpt.threadId." + getUserId, string);
         return string;
     }
 
     public void removeThread(String getUserId) {
-        sysConf.remove("chatGpt.threadId."+getUserId);
+        sysConf.remove("chatGpt.threadId." + getUserId);
     }
 
     HashMap<String, Function<JSONObject, String>> hashMap = new HashMap<>();

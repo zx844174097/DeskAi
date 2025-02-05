@@ -61,7 +61,7 @@ public class GptPanel extends FunctionUI {
 
         if (chatDialog == null) {
             chatDialog = new ChatDialog(viewAiChatPanel);
-            chatDialog.setBounds(0, 0, 600, Toolkit.getDefaultToolkit().getScreenSize().height - 100);
+            chatDialog.setBounds(0, 0, 600, 400);
             chatDialog.setVisible(true);
             viewAiChatPanel.init(chatDialog);
 

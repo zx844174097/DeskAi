@@ -388,7 +388,7 @@ public class MuguiBrowser extends DPanel {
                     .remoteDebuggingPort(9222)
                     .addSwitch("allow-running-insecure-content") // 允许加载不安全内容
                     .addSwitch("disable-web-security")          // 禁用安全检查（仅用于调试）
-//                    .licenseKey("1BNDIEOFAZ1Z8R8VNNG4W07HLC9173JJW3RT0P2G9Y28L9YFFIWDBRFNFLFDQBKXAHO9ZE")
+                    .licenseKey("1BNDIEOFAZ1Z8R8VNNG4W07HLC9173JJW3RT0P2G9Y28L9YFFIWDBRFNFLFDQBKXAHO9ZE")
                     .build());
 
             String value1 = sysConf.getValue("proxy.http.port");

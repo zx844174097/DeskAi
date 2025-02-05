@@ -26,7 +26,7 @@ public class GlobalKeyListenerExample implements NativeKeyListener {
         }
         if(altPressed){
             // 检测 S 键是否按下，并检查组合键
-            if (e.getKeyCode() == NativeKeyEvent.VC_Q  ) {
+            if (e.getKeyCode() == NativeKeyEvent.VC_Z  ) {
                 isListener = true;
                 return;
             }

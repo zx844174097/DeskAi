@@ -1,7 +1,6 @@
 
 package cn.net.mugui.net.pc.task;
 
-import java.io.*;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
@@ -9,7 +8,6 @@ import java.util.concurrent.ExecutionException;
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.StrUtil;
 import cn.net.mugui.net.pc.bean.MessageBean;
-import cn.net.mugui.net.pc.bean.PcConversationalMsgBean;
 import cn.net.mugui.net.pc.dao.Sql;
 import cn.net.mugui.net.pc.panel.ViewAiChatPanel;
 import cn.net.mugui.net.pc.util.ChatGptUtil;
@@ -31,7 +29,6 @@ import com.mugui.util.Other;
 import lombok.SneakyThrows;
 
 import javax.sound.sampled.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Task
 @AutoTask
@@ -67,14 +64,12 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
     TargetDataLine microphone = null;
 
     AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
+    AudioConfig audioConfig = null;
 
-    public void initSpeechRecognizer() {
-        String value = sysConf.getValue("microsoft.key");
-        SpeechConfig config = SpeechConfig.fromSubscription(value, "eastus");
-        config.setSpeechRecognitionLanguage("zh-CN");
-
+    public boolean initSpeechRecognizer() {
         try {
             if (microphone == null) {
+
                 // 定义音频格式
                 DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
                 if (!AudioSystem.isLineSupported(info)) {
@@ -84,34 +79,38 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
                 microphone.open(format);
                 System.out.println("Start speaking...");
                 microphone.start();
-            }
-            PullAudioInputStream pullAudioInputStream = PullAudioInputStream.create(new PullAudioInputStreamCallback() {
-                @Override
-                public int read(byte[] dataBuffer) {
-                    if (!isRecognizing) {
-                        for (int i = 0; i < dataBuffer.length; i++) {
-                            dataBuffer[i] = 0;
+                PullAudioInputStream pullAudioInputStream = PullAudioInputStream.create(new PullAudioInputStreamCallback() {
+                    @Override
+                    public int read(byte[] dataBuffer) {
+                        if (!isRecognizing) {
+                            for (int i = 0; i < dataBuffer.length; i++) {
+                                dataBuffer[i] = 0;
+                            }
+                            return dataBuffer.length;
                         }
-                        return dataBuffer.length;
+                        int read = microphone.read(dataBuffer, 0, dataBuffer.length);
+                        return read;
                     }
-                    int read = microphone.read(dataBuffer, 0, dataBuffer.length);
-                    return read;
-                }
 
-                @Override
-                public void close() {
-                    microphone.close();
-                }
-            }, AudioStreamFormat.getWaveFormatPCM((long) format.getSampleRate(), (short) format.getSampleSizeInBits(), (short) format.getChannels()));
-            AudioConfig audioConfig = AudioConfig.fromStreamInput(pullAudioInputStream);
-
+                    @Override
+                    public void close() {
+                        microphone.close();
+                    }
+                }, AudioStreamFormat.getWaveFormatPCM((long) format.getSampleRate(), (short) format.getSampleSizeInBits(), (short) format.getChannels()));
+                audioConfig = AudioConfig.fromStreamInput(pullAudioInputStream);
+            }
+            String value = sysConf.getValue("microsoft.key");
+            SpeechConfig config = SpeechConfig.fromSubscription(value, "eastus");
+            config.setSpeechRecognitionLanguage("zh-CN");
             speechRecognizer = new SpeechRecognizer(config, audioConfig);
             speechRecognizer.recognizing.addEventListener(recognizingEventHandler);
             speechRecognizer.recognized.addEventListener(recognizedEventHandler);
+            return true;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        return false;
     }
 
     private final EventHandler<SpeechRecognitionEventArgs> recognizingEventHandler = new EventHandler<>() {
@@ -138,8 +137,8 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
         public void onEvent(Object sender, SpeechRecognitionEventArgs eventArgs) {
             if (eventArgs.getResult().getReason() == ResultReason.RecognizedSpeech) {
                 SpeechRecognitionResult result = eventArgs.getResult();
-                System.out.println("RECOGNIZED: Text=" + result.getText());
                 if (StrUtil.isNotBlank(result.getText())) {
+                    System.out.println("RECOGNIZED: Text=" + result.getText());
                     MessageBean.updateUserContent(masternow, result.getText());
                     masternow.setStatus(MessageBean.Status.SUCCESS.getValue());
                     Sql.getInstance().updata(masternow);
@@ -189,7 +188,7 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
                 if (StrUtil.isNotBlank(s)) {
 
                     String s1 = cache.get(messageBean.getMessage_id());
-                    if(StrUtil.equals(s1,s)){
+                    if (StrUtil.equals(s1, s)) {
                         return;
                     }
                     if (StrUtil.isNotBlank(s1)) {
@@ -197,7 +196,7 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
                     } else {
                         s1 = "";
                     }
-                    if(StrUtil.isBlank(s)){
+                    if (StrUtil.isBlank(s)) {
                         return;
                     }
                     if (messageBean.getStatus() == MessageBean.Status.SUCCESS.getValue()) {
@@ -258,7 +257,6 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
             SpeechSynthesisResult result = speechSynthesizer.SpeakTextAsync(content).get();
             if (result.getReason() == ResultReason.SynthesizingAudioCompleted) {
                 System.out.println("Synthesis completed for content: " + content);
-                isRecognizing = true;
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -266,10 +264,12 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
     }
 
     public void start() {
-        initSpeechRecognizer();
+        isRecognizing = true;
         try {
-            isRecognizing = true;
-            speechRecognizer.startContinuousRecognitionAsync().get();
+            boolean b = initSpeechRecognizer();
+            if (b) {
+                speechRecognizer.startContinuousRecognitionAsync().get();
+            }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -277,6 +277,7 @@ public class MicrosoftSpeechRecognizer extends TaskImpl {
 
     public void stop() {
         try {
+            isRecognizing = false;
             speechRecognizer.stopContinuousRecognitionAsync().get();
         } catch (Exception e) {
             e.printStackTrace();
